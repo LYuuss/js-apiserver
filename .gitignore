@@ -1,0 +1,38 @@
+# Dépendances réinstallables avec npm ci
+node_modules/
+.npm/
+
+# Secrets et configuration propre à la machine
+.env
+.env.*
+!.env.example
+
+# Journaux et rapports générés
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+coverage/
+.nyc_output/
+
+# Fichiers compilés ou générés
+dist/
+build/
+*.map
+*.min.js
+*.min.css
+*.bundle.js
+*.bundle.css
+*.chunk.js
+*.chunk.css
+
+# macOS, éditeurs et fichiers temporaires
+.DS_Store
+._*
+.vscode/
+.idea/
+*.swp
+*~
+
+# Conserver package-lock.json, .nvmrc, src/, routes/, tests/, data/,
+# ainsi que les images et ressources créées à la main.
