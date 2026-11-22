@@ -1,0 +1,12 @@
+[
+  {
+    "sub": "achille",
+    "name": "Achille",
+    "nature": "humain"
+  },
+  {
+    "sub": "zeus",
+    "name": "Zeus",
+    "nature": "deite"
+  }
+]
