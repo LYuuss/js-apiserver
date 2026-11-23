@@ -1,20 +1,12 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const app = require('../app');
+const { startTestServer } = require('../test-utils/startTestServer');
 
 test('GET /info renvoie version et nom de l\'équipe', async (t) => {
-    const server = app.listen(0, '127.0.0.1');
-    t.after(() => new Promise((resolve, reject) => {
-        server.close((error) => error ? reject(error) : resolve());
-    }));
+    const urlRoot = await startTestServer(t, app);
 
-    await new Promise((resolve, reject) => {
-        server.once('listening', resolve);
-        server.once('error', reject);
-    });
-
-    const { port } = server.address();
-    const response = await fetch(`http://127.0.0.1:${port}/info`);
+    const response = await fetch(`${urlRoot}/info`);
 
     assert.equal(response.status, 200);
 

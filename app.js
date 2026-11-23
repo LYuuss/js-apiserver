@@ -24,6 +24,9 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/info', infoRouter);
 
+const createCharactersRouter = require('./src/routes/characters');
+app.use('/characters', createCharactersRouter());
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
