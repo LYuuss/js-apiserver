@@ -6,8 +6,7 @@ const os = require('node:os');
 const express = require('express');
 const { startTestServer } = require('../test-utils/startTestServer');
 const createCharactersRouter = require('../src/routes/characters');
-
-const { save } = require('../src/repositories/characterRepository');
+const { findAll, findBySub, save } = require('../src/repositories/characterRepository');
 
 async function createTestFile(t) {
     const directory = await fs.mkdtemp(
@@ -28,7 +27,7 @@ async function createTestFile(t) {
     return filePath;
 };
 
-test('Get /character/inexistant retourne 404 character introuvable', async (t) => {
+test('Get /characters/inexistant retourne 404 character introuvable', async (t) => {
     const filePath = await createTestFile(t);
 
     const testApp = express();
@@ -51,7 +50,7 @@ test('Get /character/inexistant retourne 404 character introuvable', async (t) =
     });
 });
 
-test('GET /character/achille renvoie 200 et achille', async (t) => {
+test('GET /characters/achille renvoie 200 et achille', async (t) => {
     const filePath = await createTestFile(t);
 
     const testApp = express();
@@ -77,4 +76,146 @@ test('GET /character/achille renvoie 200 et achille', async (t) => {
 
     assert.equal(response.status, 200);
     assert.deepStrictEqual(character, achille);
+});
+
+test('POST /characters enregistre achille et le renvoie', async (t) => {
+    const filePath = await createTestFile(t);
+
+    const testApp = express();
+    testApp.use(express.json());
+    testApp.use('/characters',
+        createCharactersRouter(filePath)
+    );
+
+    const urlRoot = await startTestServer(t, testApp);
+
+    const achille = {
+        sub: "achille",
+        name: "Achille",
+        nature: "humain",
+        strength: 60,
+        beauty: 45,
+        politics: 30,
+        vitality: 55
+    };
+
+    const response = await fetch(
+        `${urlRoot}/characters`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(achille)
+        }
+    );
+
+    const saved = await response.json();
+    const expected = {
+            ...achille,
+            parent_subs: [],
+            sibling_subs: [],
+            love_subs: [],
+            hate_subs: [],
+            tutelary_deity_subs: []
+        };
+
+    assert.equal(response.status, 201);
+    assert.deepEqual(saved, expected);
+
+    const persisted = await findBySub("achille", filePath);
+
+    assert.notEqual(persisted, null);
+    assert.equal(persisted.sub, "achille");
+
+});
+
+test('POST /characters ajoute doublon, renvoie une erreur 409', async (t) => {
+    const filePath = await createTestFile(t);
+
+    const testApp = express();
+    testApp.use(express.json());
+    testApp.use('/characters',
+        createCharactersRouter(filePath)
+    );
+
+    const urlRoot = await startTestServer(t, testApp);
+
+    const achille = {
+        sub: "achille",
+        name: "Achille",
+        nature: "humain",
+        strength: 60,
+        beauty: 45,
+        politics: 30,
+        vitality: 55
+    };
+
+    await save(achille, filePath);
+
+    const response = await fetch(
+        `${urlRoot}/characters`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(achille)
+        }
+    );
+    const error = await response.json();
+
+    assert.equal(response.status, 409);
+    assert.deepEqual(error, {
+        error:"Character already exists"
+    });
+
+    const characters = await findAll(filePath);
+
+    assert.equal(characters.length, 1);
+    assert.equal(characters[0].sub, "achille");
+});
+
+test('POST /characters refuse un personnage invalide avec 400', async (t) => {
+    const filePath = await createTestFile(t);
+
+    const testApp = express();
+    testApp.use(express.json());
+    testApp.use('/characters',
+        createCharactersRouter(filePath)
+    );
+
+    const urlRoot = await startTestServer(t, testApp);
+
+    const achille = {
+        sub: "achille",
+        name: "Achille",
+        nature: "humain",
+        strength: 61,
+        beauty: 45,
+        politics: 30,
+        vitality: 55
+    };
+
+    const response = await fetch(
+        `${urlRoot}/characters`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(achille)
+        }
+    );
+    
+    const error = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.deepStrictEqual(error, {
+        error: 'strength must be between 0 and 60'
+    });
+
+    const characters = await findAll(filePath);
+
+    assert.equal(characters.length, 0);
 });

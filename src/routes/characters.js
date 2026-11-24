@@ -1,5 +1,6 @@
-var express = require('express');
-var characterRepo = require('../repositories/characterRepository');
+const  express = require('express');
+const characterRepo = require('../repositories/characterRepository');
+const Character = require('../models/Character');
 
 function createCharactersRouter(filePath) {
     const router = express.Router();
@@ -17,6 +18,31 @@ function createCharactersRouter(filePath) {
         }
 
         return res.json(character);
+    });
+
+    router.post('/', async (req, res) => {
+        const data = req.body;
+
+        try{   
+            const character = new Character(data);
+
+            const saved = await characterRepo.save(character, filePath);
+            return res.status(201).json(saved);
+        } 
+        catch(error) {
+            if(error.name === "TypeError" || error.name === "RangeError") {
+                return res.status(400).json({
+                    error: error.message
+                });
+            }
+            if(error.message === 'Already exists'){
+                return res.status(409).json({
+                    error: "Character already exists"
+                });
+            }
+
+            return next(error);
+        }
     });
 
     return router;
