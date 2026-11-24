@@ -45,6 +45,68 @@ function createCharactersRouter(filePath) {
         }
     });
 
+    router.delete('/:character_id', async (req, res, next) => {
+        const id = req.params.character_id;
+
+        try {
+            await characterRepo.remove(id, filePath);
+
+            return res.status(204).end();
+
+        } catch (error) {
+            if (error.message === 'Character does not exist') {
+                return res.status(404).json({
+                    error: 'Character not found'
+                });
+            }
+
+            return next(error);
+        }
+    });
+
+    router.put('/:character_id', async(req, res, next) => {
+        const id = req.params.character_id;
+        const data = req.body;
+
+        try{
+            const character = new Character(data);
+            const updated = await characterRepo.fullUpdate(id, character, filePath);
+            return res.status(200).json(updated);
+        } catch(error) {
+            if(error.message === "Character does not exist"){
+                return res.status(404).end();
+            }
+            
+            return next(error);
+        }
+    });
+
+    router.patch('/:character_id', async(req, res, next) => {
+        const id = req.params.character_id;
+        const data = req.body;
+
+        try{
+            const updated = await characterRepo.partialUpdate(id, data, filePath);
+            return res.status(200).json(updated);
+        } catch(error) {
+            if(error.name === "TypeError" || error.name === "RangeError") {
+                return res.status(400).json({
+                    error: error.message
+                });
+            }
+            if(error.message === "Already exist"){
+                return res.status(404).json({
+                    error: error.message
+                });
+            }
+            if(error.message === "Character does not exist"){
+                return res.status(404).end();
+            }
+            
+            return next(error);
+        }
+    });
+
     return router;
 }
 

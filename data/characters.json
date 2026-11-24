@@ -1,10 +1,5 @@
 [
   {
-    "sub": "achille",
-    "name": "Achille",
-    "nature": "humain"
-  },
-  {
     "sub": "zeus",
     "name": "Zeus",
     "nature": "deite"
@@ -13,6 +8,22 @@
     "sub": "athena",
     "name": "Athena",
     "nature": "deite",
-    "parents_sub": ["zeus"]
+    "parents_sub": [
+      "zeus"
+    ]
+  },
+  {
+    "nature": "humain",
+    "sub": "achille",
+    "name": "Achille",
+    "parent_subs": [],
+    "sibling_subs": [],
+    "love_subs": [],
+    "hate_subs": [],
+    "tutelary_deity_subs": [],
+    "strength": 60,
+    "beauty": 45,
+    "politics": 30,
+    "vitality": 55
   }
 ]
