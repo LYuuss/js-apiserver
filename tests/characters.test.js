@@ -30,9 +30,8 @@ async function createTestFile(t) {
 
 function makeAchille(overrides = {}) {
     return {
-        sub: 'achille',
         name: 'Achille',
-        nature: 'humain',
+        is_deity: false,
         strength: 60,
         beauty: 45,
         politics: 30,
@@ -92,7 +91,7 @@ test('GET /characters/achille renvoie 200 et achille', async (t) => {
     const achille = {
         "sub": "achille",
         "name": "Achille",
-        "nature": "humain"
+        "is_deity": false
     };
 
     await save(achille, filePath);
@@ -119,7 +118,7 @@ test('POST /characters enregistre achille et le renvoie', async (t) => {
     const achille = {
         sub: "achille",
         name: "Achille",
-        nature: "humain",
+        is_deity: false,
         strength: 60,
         beauty: 45,
         politics: 30,
@@ -169,9 +168,8 @@ test('POST /characters ajoute doublon, renvoie une erreur 409', async (t) => {
     const urlRoot = await startTestServer(t, testApp);
 
     const achille = {
-        sub: "achille",
         name: "Achille",
-        nature: "humain",
+        is_deity: false,
         strength: 60,
         beauty: 45,
         politics: 30,
@@ -215,9 +213,8 @@ test('POST /characters refuse un personnage invalide avec 400', async (t) => {
     const urlRoot = await startTestServer(t, testApp);
 
     const achille = {
-        sub: "achille",
         name: "Achille",
-        nature: "humain",
+        is_deity: false,
         strength: 61,
         beauty: 45,
         politics: 30,
@@ -257,15 +254,7 @@ test('POST /characters concurrent : une création 201 et un conflit 409', async 
 
     const urlRoot = await startTestServer(t, testApp);
 
-    const achille = {
-        sub: 'achille',
-        name: 'Achille',
-        nature: 'humain',
-        strength: 60,
-        beauty: 45,
-        politics: 30,
-        vitality: 55
-    };
+    const achille = makeAchille();
 
     const createAchille = () => fetch(`${urlRoot}/characters`, {
         method: 'POST',

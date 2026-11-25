@@ -33,9 +33,8 @@ async function createTestFile(t) {
 
 function makeAchille(overrides = {}) {
     return {
-        sub: 'achille',
         name: 'Achille',
-        nature: 'humain',
+        nature: false,
         strength: 60,
         beauty: 45,
         politics: 30,
@@ -46,9 +45,8 @@ function makeAchille(overrides = {}) {
 
 function makeZeus() {
     return {
-        sub: 'zeus',
         name: 'Zeus',
-        nature: 'deite',
+        nature: true,
         strength: 95,
         beauty: 80,
         politics: 90,
@@ -82,7 +80,7 @@ test('save ajoute Achille', async (t) => {
     const achille = {
         "sub": "achille",
         "name": "Achille",
-        "nature": "humain"
+        "nature": false
     };
     await save(achille, filePath);
 
@@ -98,12 +96,12 @@ test('save conserve les personnages existants', async (t) => {
     const achille = {
         "sub": "achille",
         "name": "Achille",
-        "nature": "humain"
+        "nature": false
     };
     const zeus = {
         "sub": "zeus",
         "name": "Zeus",
-        "nature": "deite"
+        "nature": true
     };
     await save(achille, filePath);
     await save(zeus, filePath);
@@ -119,7 +117,7 @@ test('save refuse les doublons', async (t) => {
     const achille = {
         "sub": "achille",
         "name": "Achille",
-        "nature": "humain"
+        "nature": false
     };
 
     await save(achille, filePath);
@@ -139,12 +137,12 @@ test('save ajout simultané', async (t) => {
     const achille = {
         "sub": "achille",
         "name": "Achille",
-        "nature": "humain"
+        "nature": false
     };
     const zeus = {
         "sub": "zeus",
         "name": "Zeus",
-        "nature": "deite"
+        "nature": true
     };
 
     await Promise.all([

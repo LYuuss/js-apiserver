@@ -104,7 +104,7 @@ function fullUpdate(sub, character, filePath = DEFAULT_FILE_PATH){
             throw new Error('Already exists');
         }
 
-        characters[index] = character;
+        characters[index] = {...character, sub};
         
         await fs.writeFile(
             filePath,
@@ -141,7 +141,8 @@ function partialUpdate(sub, params, filePath = DEFAULT_FILE_PATH){
 
         const updated = new Character({
             ...characters[index],
-            ...params
+            ...params,
+            sub
         });
 
         if (characters.some((c, i) =>

@@ -2,8 +2,50 @@ const  express = require('express');
 const characterRepo = require('../repositories/characterRepository');
 const Character = require('../models/Character');
 
+const multer = require('multer');
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 2 * 1024 * 1024
+    }
+});
+
+const CharacterService = require('../services/characterService');
+
+
+function normalizeMultipartBody(body) {
+    const data = { ...body };
+
+    const numericFields = [
+        'strength',
+        'beauty',
+        'politics',
+        'vitality'
+    ];
+
+    if (typeof data.is_deity === 'string') {
+        if (data.is_deity === 'true') {
+            data.is_deity = true;
+        } else if (data.is_deity === 'false') {
+            data.is_deity = false;
+        }
+    }
+
+    for (const field of numericFields) {
+        if (typeof data[field] === 'string') {
+            data[field] = data[field].trim() === ''
+                ? NaN
+                : Number(data[field]);
+        }
+    }
+
+    return data;
+};
+
 function createCharactersRouter(filePath) {
     const router = express.Router();
+    const characterService = new CharacterService(filePath);
 
     router.get('/:character_id', async (req, res) => {
         const character = await characterRepo.findBySub(
@@ -20,13 +62,12 @@ function createCharactersRouter(filePath) {
         return res.json(character);
     });
 
-    router.post('/', async (req, res) => {
-        const data = req.body;
+    router.post('/', upload.single('picture'), async (req, res) => {
 
         try{   
-            const character = new Character(data);
-
-            const saved = await characterRepo.save(character, filePath);
+            const data = req.is('multipart/form-data')
+                ? normalizeMultipartBody(req.body)
+                : req.body;
             return res.status(201).json(saved);
         } 
         catch(error) {

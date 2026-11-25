@@ -18,10 +18,8 @@ class Character {
         politics,
         vitality
     }) {
-        if (!["humain", "deite"].includes(nature)) {
-            throw new TypeError(
-                "nature must be 'humain' or 'deite'"
-            );
+        if (typeof is_deity !== 'boolean') {
+            throw new TypeError('is_deity must be a boolean');
         }
 
         if (typeof sub !== "string" || !sub.trim()) {
@@ -57,7 +55,7 @@ class Character {
             }
         }
 
-        const borneMax = nature === "humain" ? 60 : 100;
+        const borneMax = is_deity ? 100 : 60;
 
         const stats = {
             strength,
@@ -78,7 +76,7 @@ class Character {
             }
         }
 
-        this.nature = nature;
+        this.is_deity = is_deity;
         this.sub = sub;
         this.name = name;
         this.family_name = family_name;

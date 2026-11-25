@@ -2,18 +2,18 @@
   {
     "sub": "zeus",
     "name": "Zeus",
-    "nature": "deite"
+    "is_deity": true
   },
   {
     "sub": "athena",
     "name": "Athena",
-    "nature": "deite",
+    "is_deity": true,
     "parents_sub": [
       "zeus"
     ]
   },
   {
-    "nature": "humain",
+    "is_deity": false,
     "sub": "achille",
     "name": "Achille",
     "parent_subs": [],
