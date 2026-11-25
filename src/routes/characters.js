@@ -1,12 +1,52 @@
 const  express = require('express');
-const characterRepo = require('../repositories/characterRepository');
-const Character = require('../models/Character');
+
+const multer = require('multer');
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 2 * 1024 * 1024
+    }
+});
+
+const CharacterService = require('../services/characterService');
+
+
+function normalizeMultipartBody(body) {
+    const data = { ...body };
+
+    const numericFields = [
+        'strength',
+        'beauty',
+        'politics',
+        'vitality'
+    ];
+
+    if (typeof data.is_deity === 'string') {
+        if (data.is_deity === 'true') {
+            data.is_deity = true;
+        } else if (data.is_deity === 'false') {
+            data.is_deity = false;
+        }
+    }
+
+    for (const field of numericFields) {
+        if (typeof data[field] === 'string') {
+            data[field] = data[field].trim() === ''
+                ? NaN
+                : Number(data[field]);
+        }
+    }
+
+    return data;
+};
 
 function createCharactersRouter(filePath) {
     const router = express.Router();
+    const characterService = new CharacterService(filePath);
 
     router.get('/:character_id', async (req, res) => {
-        const character = await characterRepo.findBySub(
+        const character = await characterService.getById(
             req.params.character_id,
             filePath
         );
@@ -20,13 +60,15 @@ function createCharactersRouter(filePath) {
         return res.json(character);
     });
 
-    router.post('/', async (req, res) => {
-        const data = req.body;
+    router.post('/', upload.single('picture'), async (req, res, next) => {
 
         try{   
-            const character = new Character(data);
+            const data = req.is('multipart/form-data')
+                ? normalizeMultipartBody(req.body)
+                : req.body;
 
-            const saved = await characterRepo.save(character, filePath);
+            const saved = await characterService.create(data, filePath);
+
             return res.status(201).json(saved);
         } 
         catch(error) {
@@ -49,7 +91,7 @@ function createCharactersRouter(filePath) {
         const id = req.params.character_id;
 
         try {
-            await characterRepo.remove(id, filePath);
+            await characterService.erase(id, filePath);
 
             return res.status(204).end();
 
@@ -69,10 +111,14 @@ function createCharactersRouter(filePath) {
         const data = req.body;
 
         try{
-            const character = new Character(data);
-            const updated = await characterRepo.fullUpdate(id, character, filePath);
-            return res.status(200).json(updated);
+            const updated = await characterService.replace(id, req.body);
+            return res.status(200).json(updated);   
         } catch(error) {
+            if(error.name === "TypeError" || error.name === "RangeError") {
+                return res.status(400).json({
+                    error: error.message
+                });
+            }
             if(error.message === "Character does not exist"){
                 return res.status(404).end();
             }
@@ -86,7 +132,7 @@ function createCharactersRouter(filePath) {
         const data = req.body;
 
         try{
-            const updated = await characterRepo.partialUpdate(id, data, filePath);
+            const updated = await characterService.modify(id, data, filePath);
             return res.status(200).json(updated);
         } catch(error) {
             if(error.name === "TypeError" || error.name === "RangeError") {

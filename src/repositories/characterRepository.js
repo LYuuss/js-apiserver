@@ -104,14 +104,14 @@ function fullUpdate(sub, character, filePath = DEFAULT_FILE_PATH){
             throw new Error('Already exists');
         }
 
-        characters[index] = character;
+        characters[index] = {...character, sub};
         
         await fs.writeFile(
             filePath,
             JSON.stringify(characters, null, 2),
             'utf8'
         );
-        return character;
+        return characters[index];
     });
 
     const tail = operation.catch(() => {});
@@ -141,7 +141,8 @@ function partialUpdate(sub, params, filePath = DEFAULT_FILE_PATH){
 
         const updated = new Character({
             ...characters[index],
-            ...params
+            ...params,
+            sub
         });
 
         if (characters.some((c, i) =>
