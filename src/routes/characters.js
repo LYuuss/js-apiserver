@@ -68,6 +68,9 @@ function createCharactersRouter(filePath) {
             const data = req.is('multipart/form-data')
                 ? normalizeMultipartBody(req.body)
                 : req.body;
+
+            const saved = await characterService.create(data, filePath);
+
             return res.status(201).json(saved);
         } 
         catch(error) {
@@ -90,7 +93,7 @@ function createCharactersRouter(filePath) {
         const id = req.params.character_id;
 
         try {
-            await characterRepo.remove(id, filePath);
+            await characterService.erase(id, filePath);
 
             return res.status(204).end();
 
@@ -111,7 +114,7 @@ function createCharactersRouter(filePath) {
 
         try{
             const character = new Character(data);
-            const updated = await characterRepo.fullUpdate(id, character, filePath);
+            const updated = await characterService.replace(id, character, filePath);
             return res.status(200).json(updated);
         } catch(error) {
             if(error.message === "Character does not exist"){
@@ -127,7 +130,7 @@ function createCharactersRouter(filePath) {
         const data = req.body;
 
         try{
-            const updated = await characterRepo.partialUpdate(id, data, filePath);
+            const updated = await characterService.modify(id, data, filePath);
             return res.status(200).json(updated);
         } catch(error) {
             if(error.name === "TypeError" || error.name === "RangeError") {
