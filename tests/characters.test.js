@@ -7,6 +7,8 @@ const express = require('express');
 const { startTestServer } = require('../test-utils/startTestServer');
 const createCharactersRouter = require('../src/routes/characters');
 const { findAll, findBySub, save } = require('../src/repositories/characterRepository');
+const CharacterService = require('../src/services/characterService');
+
 
 async function createTestFile(t) {
     const directory = await fs.mkdtemp(
@@ -38,6 +40,11 @@ function makeAchille(overrides = {}) {
         vitality: 55,
         ...overrides
     };
+}
+
+async function seedAchille(filePath) {
+    const service = new CharacterService(filePath);
+    return service.create(makeAchille());
 }
 
 async function createCharactersTestApp(t) {
@@ -193,37 +200,6 @@ test('POST /characters refuse un personnage invalide avec 400', async (t) => {
     assert.equal(characters.length, 0);
 });
 
-test('PUT /characters/achille remplace un personnage', async (t) => {
-    const { filePath, urlRoot } = await createCharactersTestApp(t);
-
-    await save(makeAchille(), filePath);
-
-    const updatedAchille = makeAchille({
-        name: 'Achille le héros',
-        strength: 50
-    });
-
-    const response = await fetch(`${urlRoot}/characters/achille`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updatedAchille)
-    });
-
-    assert.equal(response.status, 200);
-
-    const result = await response.json();
-
-    assert.equal(result.name, 'Achille le héros');
-    assert.equal(result.strength, 50);
-
-    const persisted = await findAll(filePath);
-    console.log(persisted);
-    console.log(result);
-    assert.deepStrictEqual(persisted[0], result);
-});
-
 test('PUT /characters/inexistant retourne 404', async (t) => {
     const { filePath, urlRoot } = await createCharactersTestApp(t);
 
@@ -241,44 +217,77 @@ test('PUT /characters/inexistant retourne 404', async (t) => {
     assert.equal(characters.length, 0);
 });
 
+test('PUT /characters/achille remplace un personnage', async (t) => {
+    const { filePath, urlRoot } = await createCharactersTestApp(t);
+
+    const achille = await seedAchille(filePath);
+
+    const updatedAchille = makeAchille({
+        name: 'Achille le héros',
+        strength: 50
+    });
+
+    const response = await fetch(
+        `${urlRoot}/characters/${achille.sub}`, 
+        {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedAchille)
+        });
+
+    assert.equal(response.status, 200);
+
+    const result = await response.json();
+
+    assert.equal(result.sub, achille.sub);
+    assert.equal(result.name, 'Achille le héros');
+    assert.equal(result.strength, 50);
+
+    const persisted = await findBySub(achille.sub, filePath);
+    assert.deepStrictEqual(persisted, result);
+});
 
 test('PATCH /characters/achille modifie uniquement les propriétés fournies', async (t) => {
     const { filePath, urlRoot } = await createCharactersTestApp(t);
 
-    await save(makeAchille(), filePath);
+    const achille = await seedAchille(filePath);
 
-    const response = await fetch(`${urlRoot}/characters/achille`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            strength: 40
-        })
-    });
+    const response = await fetch(
+        `${urlRoot}/characters/${achille.sub}`, 
+        {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                strength: 40
+            })
+        });
 
     assert.equal(response.status, 200);
 
     const updated = await response.json();
 
+    assert.equal(updated.sub, achille.sub);
     assert.equal(updated.strength, 40);
-
     assert.equal(updated.name, 'Achille');
     assert.equal(updated.beauty, 45);
     assert.equal(updated.politics, 30);
     assert.equal(updated.vitality, 55);
 
-    const persisted = await findAll(filePath);
+    const persisted = await findBySub(achille.sub, filePath);
 
-    assert.deepStrictEqual(persisted[0], updated);
+    assert.deepStrictEqual(persisted, updated);
 });
 
 test('PATCH /characters/achille refuse des statistiques invalides', async (t) => {
     const { filePath, urlRoot } = await createCharactersTestApp(t);
 
-    await save(makeAchille(), filePath);
+    const achille = await seedAchille(filePath);
 
-    const response = await fetch(`${urlRoot}/characters/achille`, {
+    const response = await fetch(`${urlRoot}/characters/${achille.sub}`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json'
@@ -296,7 +305,7 @@ test('PATCH /characters/achille refuse des statistiques invalides', async (t) =>
         error: 'strength must be between 0 and 60'
     });
 
-    const persisted = await findAll(filePath);
+    const persisted = await findBySub(achille.sub, filePath);
 
     assert.equal(persisted.strength, 60);
 });
@@ -305,7 +314,7 @@ test('PATCH /characters/achille refuse des statistiques invalides', async (t) =>
 test('DELETE /characters/achille supprime le personnage', async (t) => {
     const { filePath, urlRoot } = await createCharactersTestApp(t);
 
-    await save(makeAchille(), filePath);
+    await seedAchille(filePath);
 
     const characters = await findAll(filePath);
     const response = await fetch(`${urlRoot}/characters/${characters[0].sub}`, {
