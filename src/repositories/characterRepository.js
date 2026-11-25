@@ -111,7 +111,7 @@ function fullUpdate(sub, character, filePath = DEFAULT_FILE_PATH){
             JSON.stringify(characters, null, 2),
             'utf8'
         );
-        return character;
+        return characters[index];
     });
 
     const tail = operation.catch(() => {});

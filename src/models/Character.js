@@ -1,7 +1,7 @@
 
 class Character {
     constructor({
-        nature,
+        is_deity,
         sub,
         name,
         family_name,

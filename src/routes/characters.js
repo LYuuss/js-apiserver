@@ -1,6 +1,4 @@
 const  express = require('express');
-const characterRepo = require('../repositories/characterRepository');
-const Character = require('../models/Character');
 
 const multer = require('multer');
 
@@ -48,7 +46,7 @@ function createCharactersRouter(filePath) {
     const characterService = new CharacterService(filePath);
 
     router.get('/:character_id', async (req, res) => {
-        const character = await characterRepo.findBySub(
+        const character = await characterService.getById(
             req.params.character_id,
             filePath
         );
@@ -62,7 +60,7 @@ function createCharactersRouter(filePath) {
         return res.json(character);
     });
 
-    router.post('/', upload.single('picture'), async (req, res) => {
+    router.post('/', upload.single('picture'), async (req, res, next) => {
 
         try{   
             const data = req.is('multipart/form-data')
@@ -113,10 +111,14 @@ function createCharactersRouter(filePath) {
         const data = req.body;
 
         try{
-            const character = new Character(data);
-            const updated = await characterService.replace(id, character, filePath);
-            return res.status(200).json(updated);
+            const updated = await characterService.replace(id, req.body);
+            return res.status(200).json(updated);   
         } catch(error) {
+            if(error.name === "TypeError" || error.name === "RangeError") {
+                return res.status(400).json({
+                    error: error.message
+                });
+            }
             if(error.message === "Character does not exist"){
                 return res.status(404).end();
             }

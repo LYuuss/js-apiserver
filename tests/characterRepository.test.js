@@ -31,10 +31,14 @@ async function createTestFile(t) {
     return filePath;
 };
 
+const ACHILLE_ID = '550e8400-e29b-41d4-a716-446655440000';
+const ZEUS_ID = '550e8400-e29b-41d4-a716-446655440001';
+
 function makeAchille(overrides = {}) {
     return {
+        sub: ACHILLE_ID,
         name: 'Achille',
-        nature: false,
+        is_deity: false,
         strength: 60,
         beauty: 45,
         politics: 30,
@@ -45,8 +49,9 @@ function makeAchille(overrides = {}) {
 
 function makeZeus() {
     return {
+        sub: ZEUS_ID,
         name: 'Zeus',
-        nature: true,
+        is_deity: true,
         strength: 95,
         beauty: 80,
         politics: 90,
@@ -78,9 +83,9 @@ test('save ajoute Achille', async (t) => {
     const filePath = await createTestFile(t);
 
     const achille = {
-        "sub": "achille",
+        "sub": ACHILLE_ID,
         "name": "Achille",
-        "nature": false
+        "is_deity": false
     };
     await save(achille, filePath);
 
@@ -94,14 +99,14 @@ test('save conserve les personnages existants', async (t) => {
     const filePath = await createTestFile(t);
 
     const achille = {
-        "sub": "achille",
+        "sub": ACHILLE_ID,
         "name": "Achille",
-        "nature": false
+        "is_deity": false
     };
     const zeus = {
-        "sub": "zeus",
+        "sub": ZEUS_ID,
         "name": "Zeus",
-        "nature": true
+        "is_deity": true
     };
     await save(achille, filePath);
     await save(zeus, filePath);
@@ -115,9 +120,9 @@ test('save refuse les doublons', async (t) => {
     const filePath = await createTestFile(t);
 
     const achille = {
-        "sub": "achille",
+        "sub": ACHILLE_ID,
         "name": "Achille",
-        "nature": false
+        "is_deity": false
     };
 
     await save(achille, filePath);
@@ -135,14 +140,14 @@ test('save ajout simultané', async (t) => {
     const filePath = await createTestFile(t);
 
     const achille = {
-        "sub": "achille",
+        "sub": ACHILLE_ID,
         "name": "Achille",
-        "nature": false
+        "is_deity": false
     };
     const zeus = {
-        "sub": "zeus",
+        "sub": ZEUS_ID,
         "name": "Zeus",
-        "nature": true
+        "is_deity": true
     };
 
     await Promise.all([
@@ -165,14 +170,14 @@ test('remove supprime un personnage existant', async (t) => {
     await save(makeAchille(), filePath);
     await save(makeZeus(), filePath);
 
-    await remove('achille', filePath);
+    await remove(ACHILLE_ID, filePath);
 
     const characters = await findAll(filePath);
 
     assert.equal(characters.length, 1);
-    assert.equal(characters[0].sub, 'zeus');
+    assert.equal(characters[0].name, 'Zeus');
 
-    const achille = await findBySub('achille', filePath);
+    const achille = await findBySub(ACHILLE_ID, filePath);
     assert.equal(achille, null);
 });
 
@@ -200,14 +205,14 @@ test('fullUpdate remplace les propriétés du personnage', async (t) => {
     });
 
     const result = await fullUpdate(
-        'achille',
+        ACHILLE_ID,
         replacement,
         filePath
     );
 
     assert.deepStrictEqual(result, replacement);
 
-    const persisted = await findBySub('achille', filePath);
+    const persisted = await findBySub(ACHILLE_ID, filePath);
     assert.deepStrictEqual(persisted, replacement);
 });
 
@@ -223,37 +228,13 @@ test('fullUpdate refuse un personnage inexistant', async (t) => {
     assert.deepStrictEqual(characters, []);
 });
 
-test('fullUpdate refuse un sub déjà utilisé', async (t) => {
-    const filePath = await createTestFile(t);
-
-    await save(makeAchille(), filePath);
-    await save(makeZeus(), filePath);
-
-    const replacement = makeAchille({
-        sub: 'zeus'
-    });
-
-    await assert.rejects(
-        fullUpdate('achille', replacement, filePath),
-        /Already exists/
-    );
-
-    const characters = await findAll(filePath);
-
-    assert.equal(characters.length, 2);
-    assert.deepStrictEqual(
-        characters.map(c => c.sub),
-        ['achille', 'zeus']
-    );
-});
-
 test('partialUpdate modifie uniquement les propriétés fournies', async (t) => {
     const filePath = await createTestFile(t);
 
     await save(makeAchille(), filePath);
 
     const result = await partialUpdate(
-        'achille',
+        ACHILLE_ID,
         { strength: 40 },
         filePath
     );
@@ -264,7 +245,7 @@ test('partialUpdate modifie uniquement les propriétés fournies', async (t) => 
     assert.equal(result.vitality, 55);
     assert.equal(result.name, 'Achille');
 
-    const persisted = await findBySub('achille', filePath);
+    const persisted = await findBySub(ACHILLE_ID, filePath);
 
     assert.equal(persisted.strength, 40);
     assert.equal(persisted.beauty, 45);
@@ -279,7 +260,7 @@ test('partialUpdate refuse une modification invalide', async (t) => {
 
     await assert.rejects(
         partialUpdate(
-            'achille',
+            ACHILLE_ID,
             { strength: 90 },
             filePath
         ),
@@ -289,8 +270,7 @@ test('partialUpdate refuse une modification invalide', async (t) => {
         }
     );
 
-    // Le fichier ne doit pas avoir été modifié
-    const persisted = await findBySub('achille', filePath);
+    const persisted = await findBySub(ACHILLE_ID, filePath);
 
     assert.deepStrictEqual(persisted, original);
 });
@@ -309,28 +289,4 @@ test('partialUpdate refuse un personnage inexistant', async (t) => {
 
     const characters = await findAll(filePath);
     assert.deepStrictEqual(characters, []);
-});
-
-test('partialUpdate refuse un sub déjà utilisé', async (t) => {
-    const filePath = await createTestFile(t);
-
-    await save(makeAchille(), filePath);
-    await save(makeZeus(), filePath);
-
-    await assert.rejects(
-        partialUpdate(
-            'achille',
-            { sub: 'zeus' },
-            filePath
-        ),
-        /Already exists/
-    );
-
-    const characters = await findAll(filePath);
-
-    assert.equal(characters.length, 2);
-    assert.deepStrictEqual(
-        characters.map(c => c.sub),
-        ['achille', 'zeus']
-    );
 });

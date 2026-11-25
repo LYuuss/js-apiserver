@@ -7,6 +7,9 @@ class CharacterService {
         this.filePath = filePath;
     }
 
+    async getById(sub, filePath) {
+        return characterRepo.findBySub(sub, filePath);
+    }
     async create(data) {
         const character = new Character({
             ...data,
@@ -21,11 +24,23 @@ class CharacterService {
     }
     
     async replace(sub, data) {
-        return characterRepo.fullUpdate(sub, data, this.filePath);
+        const character = new Character({
+            ...data,
+            sub
+        });
+
+        return characterRepo.fullUpdate(
+            sub,
+            character,
+            this.filePath
+        );
     }
 
     async modify(sub, params) {
-        return characterRepo.partialUpdate(sub, params, this.filePath);
+        return characterRepo.partialUpdate(
+            sub, 
+            params, 
+            this.filePath);
     }
 }
 
