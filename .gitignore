@@ -36,3 +36,4 @@ build/
 
 # Conserver package-lock.json, .nvmrc, src/, routes/, tests/, data/,
 # ainsi que les images et ressources créées à la main.
+requete.txt

@@ -1,13 +1,13 @@
-const { test } = require('node:test');
-const assert = require('node:assert/strict');
-const fs = require('node:fs/promises');
-const path = require('node:path');
-const os = require('node:os');
-const express = require('express');
-const { startTestServer } = require('../test-utils/startTestServer');
-const createCharactersRouter = require('../src/routes/characters');
-const { findAll, findBySub, save } = require('../src/repositories/characterRepository');
-const CharacterService = require('../src/services/characterService');
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
+import express from 'express';
+import { startTestServer } from '../test-utils/startTestServer';
+import createCharactersRouter from '../src/routes/characters';
+import { findAll, findBySub, save } from '../src/repositories/characterRepository';
+import CharacterService from '../src/services/characterService';
 
 
 async function createTestFile(t) {

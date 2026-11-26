@@ -1,15 +1,13 @@
-const { test } = require('node:test');
-const assert = require('node:assert/strict');
-const fs = require('node:fs/promises');
-const path = require('node:path');
-const os = require('node:os');
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
 
-const { findAll, findBySub, save, remove, fullUpdate, partialUpdate } = require(
-    '../src/repositories/characterRepository'
-);
+import { findAll, findBySub, save, remove, fullUpdate, partialUpdate } from '../src/repositories/characterRepository';
 
 const fileTestPath = path.join(
-    __dirname, 'fixtures', 'characters.json'
+    import.meta.dirname, 'fixtures', 'characters.json'
 );
 
 async function createTestFile(t) {

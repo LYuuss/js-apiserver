@@ -1,6 +1,6 @@
-const  express = require('express');
+import express from 'express';
 
-const multer = require('multer');
+import multer from 'multer';
 
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -9,7 +9,7 @@ const upload = multer({
     }
 });
 
-const CharacterService = require('../services/characterService');
+import CharacterService from '../services/characterService';
 
 
 function normalizeMultipartBody(body) {
@@ -156,4 +156,4 @@ function createCharactersRouter(filePath) {
     return router;
 }
 
-module.exports = createCharactersRouter;
+export default createCharactersRouter;

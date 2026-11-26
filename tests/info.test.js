@@ -1,7 +1,7 @@
-const { test } = require('node:test');
-const assert = require('node:assert/strict');
-const app = require('../app');
-const { startTestServer } = require('../test-utils/startTestServer');
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import app from '../app';
+import { startTestServer } from '../test-utils/startTestServer';
 
 test('GET /info renvoie version et nom de l\'équipe', async (t) => {
     const urlRoot = await startTestServer(t, app);

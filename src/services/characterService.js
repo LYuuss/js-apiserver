@@ -1,6 +1,6 @@
-const { randomUUID } = require('node:crypto');
-const Character = require('../models/Character');
-const characterRepo = require('../repositories/characterRepository');
+import { randomUUID } from 'node:crypto';
+import Character from '../models/Character';
+import * as characterRepo from '../repositories/characterRepository';
 
 class CharacterService {
     constructor(filePath) {
@@ -44,4 +44,4 @@ class CharacterService {
     }
 }
 
-module.exports = CharacterService;
+export default CharacterService;

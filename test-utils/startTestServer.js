@@ -1,4 +1,4 @@
-const { once } = require('node:events');
+import { once } from 'node:events';
 
 async function startTestServer(t, app) {
     const server = app.listen(0, '127.0.0.1');
@@ -17,4 +17,4 @@ async function startTestServer(t, app) {
     return `http://127.0.0.1:${port}`;
 }
 
-module.exports = { startTestServer };
+export { startTestServer };

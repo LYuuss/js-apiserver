@@ -1,9 +1,9 @@
-const fs = require('node:fs/promises');
-const path = require('node:path');
-const Character = require('../models/Character');
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import Character from '../models/Character.js';
 
 const DEFAULT_FILE_PATH = path.join(
-    __dirname, '..', '..', 'data', 'characters.json'
+    import.meta.dirname, '..', '..', 'data', 'characters.json'
 );
 
 async function findAll(filePath = DEFAULT_FILE_PATH) {
@@ -18,7 +18,7 @@ async function findBySub(sub, filePath = DEFAULT_FILE_PATH) {
 
 const queues = new Map();
 
-function save(character, filePath = DEFAULT_FILE_PATH) {
+async function save(character, filePath = DEFAULT_FILE_PATH) {
     const queue = queues.get(filePath) ?? Promise.resolve();
 
     const operation = queue.then(async () => {
@@ -52,7 +52,7 @@ function save(character, filePath = DEFAULT_FILE_PATH) {
     return operation;
 }
 
-function remove(sub, filePath = DEFAULT_FILE_PATH){
+async function remove(sub, filePath = DEFAULT_FILE_PATH){
     
     const queue = queues.get(filePath)?? Promise.resolve();
     
@@ -88,7 +88,7 @@ function remove(sub, filePath = DEFAULT_FILE_PATH){
 
 };
 
-function fullUpdate(sub, character, filePath = DEFAULT_FILE_PATH){
+async function fullUpdate(sub, character, filePath = DEFAULT_FILE_PATH){
     const queue = queues.get(filePath)?? Promise.resolve();
     
     const operation = queue.then(async () => {
@@ -127,7 +127,7 @@ function fullUpdate(sub, character, filePath = DEFAULT_FILE_PATH){
     return operation;
 };
 
-function partialUpdate(sub, params, filePath = DEFAULT_FILE_PATH){
+async function partialUpdate(sub, params, filePath = DEFAULT_FILE_PATH){
     const queue = queues.get(filePath)?? Promise.resolve();
     
     const operation = queue.then(async () => {
@@ -174,4 +174,4 @@ function partialUpdate(sub, params, filePath = DEFAULT_FILE_PATH){
     return operation;
 };
 
-module.exports = { findAll, findBySub, save, remove, fullUpdate, partialUpdate };
+export { findAll, findBySub, save, remove, fullUpdate, partialUpdate };
