@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import app from '../app';
-import { startTestServer } from '../test-utils/startTestServer';
+import app from '../app.js';
+import { startTestServer } from '../test-utils/startTestServer.js';
 
 test('GET /info renvoie version et nom de l\'équipe', async (t) => {
     const urlRoot = await startTestServer(t, app);

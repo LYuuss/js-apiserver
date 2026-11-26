@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import app from'../app';
+import app from'../app.js';
 
 test('GET / renvoie la page de demarrage Express', async (t) => {
   // Le port 0 laisse le systeme choisir un port libre.

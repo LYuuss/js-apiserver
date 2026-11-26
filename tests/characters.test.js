@@ -4,10 +4,10 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import express from 'express';
-import { startTestServer } from '../test-utils/startTestServer';
-import createCharactersRouter from '../src/routes/characters';
-import { findAll, findBySub, save } from '../src/repositories/characterRepository';
-import CharacterService from '../src/services/characterService';
+import { startTestServer } from '../test-utils/startTestServer.js';
+import createCharactersRouter from '../src/routes/characters.js';
+import { findAll, findBySub, save } from '../src/repositories/characterRepository.js';
+import CharacterService from '../src/services/characterService.js';
 
 
 async function createTestFile(t) {

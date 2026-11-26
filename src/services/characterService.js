@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import Character from '../models/Character';
-import * as characterRepo from '../repositories/characterRepository';
+import Character from '../models/Character.js';
+import * as characterRepo from '../repositories/characterRepository.js';
 
 class CharacterService {
     constructor(filePath) {

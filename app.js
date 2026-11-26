@@ -3,9 +3,9 @@ import express from 'express';
 import path from 'path';
 import logger from 'morgan';
 
-import indexRouter from './src/routes/index';
-import usersRouter from './src/routes/users';
-import infoRouter from './src/routes/info';
+import indexRouter from './src/routes/index.js';
+import usersRouter from './src/routes/users.js';
+import infoRouter from './src/routes/info.js';
 
 var app = express();
 
@@ -21,7 +21,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/info', infoRouter);
 
-import createCharactersRouter from './src/routes/characters';
+import createCharactersRouter from './src/routes/characters.js';
 app.use('/characters', createCharactersRouter());
 
 // catch 404 and forward to error handler

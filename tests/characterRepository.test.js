@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 
-import { findAll, findBySub, save, remove, fullUpdate, partialUpdate } from '../src/repositories/characterRepository';
+import { findAll, findBySub, save, remove, fullUpdate, partialUpdate } from '../src/repositories/characterRepository.js';
 
 const fileTestPath = path.join(
     import.meta.dirname, 'fixtures', 'characters.json'

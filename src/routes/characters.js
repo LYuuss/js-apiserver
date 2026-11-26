@@ -9,7 +9,7 @@ const upload = multer({
     }
 });
 
-import CharacterService from '../services/characterService';
+import CharacterService from '../services/characterService.js';
 
 
 function normalizeMultipartBody(body) {
